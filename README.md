@@ -10,7 +10,7 @@ This guide explains how passwords are stored, what is **John the Ripper** and sh
 - [3. Running John](#3-running-john)
 - [4. Hash Format Problem](#3-hash-format-problem)
 - [5. Build a New Version](#5-build-a-new-version)
-- [6. Use RockYou](#6-use-rockyou)
+- [6. Use RockYou Wordlist](#6-use-rockyou-wordlist)
 - [7. Run John Again](#7-run-john-again)
 - [8. Useful Commands](#8-useful-commands)
 
@@ -101,7 +101,7 @@ First, install the required packages:
 sudo apt install git build-essential libssl-dev zlib1g-dev
 ```
 
-Then downloaded the source into home directory:
+Then download the source into home directory:
 
 ```bash
 cd ~
@@ -109,13 +109,13 @@ git clone https://github.com/openwall/john.git
 cd ~/john/src
 ```
 
-Configured the build:
+Configure the build:
 
 ```bash
 ./configure
 ```
 
-Then we see that configure finished and to compiled it we have to run:
+Then we see that configure finished and we have to run next command to compile it:
 
 ```bash
 make -s clean && make -sj6
@@ -131,7 +131,7 @@ I used this binary instead of the old `john` command.
 
 ---
 
-## 6. Use RockYou
+## 6. Use RockYou Wordlist
 
 My Kali didn't have the RockYou wordlist. So I installed it:
 
@@ -139,28 +139,20 @@ My Kali didn't have the RockYou wordlist. So I installed it:
 sudo apt update
 sudo apt install wordlists
 ```
-After installation it can be found there:
-```text
-/usr/share/wordlists/rockyou.txt.gz
-```
+After installation it can be found there: `/usr/share/wordlists/rockyou.txt.gz`
 
-I checked:
+I confirmed :
 
 ```bash
 ls -lah /usr/share/wordlists/
 ```
-
-Extract it:
+Extract it using the **gzip** tool installed earlier:
 
 ```bash
 sudo gzip -d /usr/share/wordlists/rockyou.txt.gz
 ```
 
-Now the wordlist was available as:
-
-```text
-/usr/share/wordlists/rockyou.txt
-```
+Now the wordlist was available at: `/usr/share/wordlists/rockyou.txt`
 
 ---
 

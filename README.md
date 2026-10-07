@@ -166,7 +166,7 @@ Now the wordlist was available as:
 
 ## 7. Run John Again
 
-I ran the newly compiled version:
+Run the newly compiled version. Specify the path to the wordlist it will use for comparison:
 
 ```bash
 ~/john/run/john --wordlist=/usr/share/wordlists/rockyou.txt ~/hashes.txt
@@ -206,19 +206,7 @@ If the password is not in the wordlist, John will not find it with this method.
 ~/john/run/john --list=formats
 ```
 
-### Search for crypt formats
-
-```bash
-~/john/run/john --list=formats | grep -i crypt
-```
-
-### Check how many CPU threads are available
-
-```bash
-nproc
-```
-
-### Remove John's saved results
+### John's saved results
 
 John saves cracked hashes in:
 
@@ -226,42 +214,16 @@ John saves cracked hashes in:
 ~/john/run/john.pot
 ```
 
-For a fresh lab test, I can remove it:
+For each new password-cracking test, you need to clear John's saved results:
 
 ```bash
 rm ~/john/run/john.pot
+rm ~/hashes.txt
 ```
 
-Then recreate the hash file and run John again:
+...and recreate the hash file:
 
 ```bash
 sudo unshadow /etc/passwd /etc/shadow > ~/hashes.txt
 
-~/john/run/john --wordlist=/usr/share/wordlists/rockyou.txt ~/hashes.txt
 ```
-
----
-
-## What I Learned
-
-The main problem was not that John the Ripper was outdated as a project.
-
-The problem was that the **Kali APT package was an older build** that did not support the `yescrypt` hash I was testing.
-
-The solution was:
-
-```text
-Install from APT
-       ↓
-Check version
-       ↓
-No yescrypt support
-       ↓
-Build newer John from source
-       ↓
-Use ~/john/run/john
-       ↓
-yescrypt works
-```
-
-This was also a good example of why checking the actual version and supported formats is useful when a tool gives an error like `No password hashes loaded`.

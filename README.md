@@ -30,18 +30,22 @@ Since John works directly with password hashes, it does not need to interact wit
 
 By default, this tool should be included in Kali's toolset, but in my case, it wasn’t.
 You can check whether it is installed with: `which john`.
+![Verifying John version](https://github.com/MikeMilenk/linux-john/blob/20b5fed56f074e69cf5ea1db37d18d905f1c8e8c/images/0%20-%20Verifying%20john.png)
+
 I installed John using the Kali package manager:
 
 ```bash
 sudo apt update
 sudo apt install john
 ```
+![Installing John the Ripper](https://github.com/MikeMilenk/linux-john/blob/20b5fed56f074e69cf5ea1db37d18d905f1c8e8c/images/1%20-%20Installing%20John.png)
 
 Then checked the version:
 
 ```bash
 john
 ```
+![John version](https://github.com/MikeMilenk/linux-john/blob/20b5fed56f074e69cf5ea1db37d18d905f1c8e8c/images/1.1%20-%20John%20version.png)
 
 I got: `John the Ripper 1.9.0-jumbo-1`
 
@@ -49,17 +53,21 @@ I got: `John the Ripper 1.9.0-jumbo-1`
 
 ## 2. Prepare the Hash
 
-Before using John, we need the contents of `/etc/passwd` and `etc/shadow` in text files. `/etc/passwd` contains user information, while `/etc/shadow` contains password hashes. `unshadow` command combines both files into a format that **John the Ripper** can properly process:
+Before using John, we need the contents of `/etc/passwd` and `etc/shadow` in a new text file.
+`/etc/passwd` contains user information, while `/etc/shadow` contains password hashes.
+`unshadow` command combines both files into a format that **John the Ripper** can properly process. In my case I copied them to a new `hashes.txt` file:
 
 ```bash
 sudo unshadow /etc/passwd /etc/shadow > ~/hashes.txt
 ```
 
+![Unshadow hashes](https://github.com/MikeMilenk/linux-john/blob/20b5fed56f074e69cf5ea1db37d18d905f1c8e8c/images/2%20-%20copying%20creds.png)
+
 ---
 
 ## 3. Running John
 
-At this point, the basic process is simple: run John and give it the text file containing the hashes:
+At this point, the basic process is simple: run **John** and give it the text file containing the hashes:
 
 ```bash
 john hashes.txt
@@ -72,6 +80,8 @@ This is basically what I expected from the password-cracking process covered in 
 ```text
 No password hashes loaded
 ```
+![JtR no hash error](https://github.com/MikeMilenk/linux-john/blob/20b5fed56f074e69cf5ea1db37d18d905f1c8e8c/images/3%20-%20john%20error.png)
+
 ...even thought they were loaded into `hashes.txt` file. At this point I started digging deeper into what was actually happening.
 
 ---
@@ -101,6 +111,8 @@ First, install the required packages:
 sudo apt install git build-essential libssl-dev zlib1g-dev
 ```
 
+![Installing libraries](https://github.com/MikeMilenk/linux-john/blob/20b5fed56f074e69cf5ea1db37d18d905f1c8e8c/images/5%20-%20Installing%20libraries.png)
+
 Then download the source into home directory:
 
 ```bash
@@ -108,6 +120,7 @@ cd ~
 git clone https://github.com/openwall/john.git
 cd ~/john/src
 ```
+![Installing JtR from developpers GitHub](https://github.com/MikeMilenk/linux-john/blob/20b5fed56f074e69cf5ea1db37d18d905f1c8e8c/images/5.1%20-%20Installing%20John%20from%20GitHub.png)
 
 Configure the build:
 
@@ -121,11 +134,15 @@ Then we see that configure finished and we have to run next command to compile i
 make -s clean && make -sj6
 ```
 
+![Configuring and compilling](https://github.com/MikeMilenk/linux-john/blob/20b5fed56f074e69cf5ea1db37d18d905f1c8e8c/images/5.2%20-%20Configuring.png)
+
 After the build finished, the new John binary was located here:
 
 ```text
 ~/john/run/john
 ```
+
+![JtR location](https://github.com/MikeMilenk/linux-john/blob/20b5fed56f074e69cf5ea1db37d18d905f1c8e8c/images/5.3%20-%20John%20Location.png)
 
 I used this binary instead of the old `john` command.
 
@@ -154,6 +171,8 @@ sudo gzip -d /usr/share/wordlists/rockyou.txt.gz
 
 Now the wordlist was available at: `/usr/share/wordlists/rockyou.txt`
 
+![Installing and extracting wordlists](https://github.com/MikeMilenk/linux-john/blob/20b5fed56f074e69cf5ea1db37d18d905f1c8e8c/images/6%20-%20Install%20and%20extract%20wordlists.png)
+
 ---
 
 ## 7. Run John Again
@@ -163,6 +182,10 @@ Run the newly compiled version. Specify the path to the wordlist it will use for
 ```bash
 ~/john/run/john --wordlist=/usr/share/wordlists/rockyou.txt ~/hashes.txt
 ```
+
+You will immediately notice that the system starts getting under heavy load once the process begins. CPU usage will increase significantly because **JtR** is using it to test password candidates.
+
+![Running JtR again](https://github.com/MikeMilenk/linux-john/blob/20b5fed56f074e69cf5ea1db37d18d905f1c8e8c/images/7%20-%20Running%20John.png)
 
 This time John successfully loaded the hash:
 

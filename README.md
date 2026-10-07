@@ -190,6 +190,8 @@ If the password is not in the wordlist, John will not find it with this method.
 
 ### Show the cracked password
 
+John keeps a `john.pot` file containing all cracked passwords.
+
 ```bash
 ~/john/run/john --show ~/hashes.txt
 ```

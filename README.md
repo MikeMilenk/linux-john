@@ -4,10 +4,11 @@ This guide explains how passwords are stored, what is **John the Ripper** and sh
 
 ## Contents
 
-- [0. How Passwords Are Stored](#0-how-passwords-are-stored)
+- [0. How Does It Work](#0-how-does-it-work)
 - [1. Install John](#1-install-john)
 - [2. Prepare the Hash](#2-prepare-the-hash)
-- [3. The yescrypt Problem](#3-the-yescrypt-problem)
+- [3. Running John](#3-running-john)
+- [4. Hash Format Problem](#3-hash-format-problem)
 - [5. Build a New Version](#5-build-a-new-version)
 - [6. Use RockYou](#6-use-rockyou)
 - [7. Run John Again](#7-run-john-again)
@@ -15,11 +16,13 @@ This guide explains how passwords are stored, what is **John the Ripper** and sh
 
 ---
 
-## 0. How Passwords Are Stored
+## 0. How Does It Work
 
 Passwords are usually not stored as plain text. Instead, they are stored as hashes, which are one-way representations of the original password. For example, a password SHA-256 hash might look like: `$y$j9T$5f7K3mQx8Wz2LrNp$QvX9mN8kR3sT6pY2aBcD4eF7gH1jK5lM9nP2qR6sT8uV`
 
-**_John the Ripper_** is a open-source password-cracking tool that allows us to test password strength. Its goal is simple: take a list of password hashes and find the original plaintext passwords by hashing guesses and and compares it with the target hash. If they match, John has found the original password.
+**_John the Ripper_** is a open-source password-cracking tool that allows us to test password strength. Its goal is simple: take a list of password hashes (dictionary) and find the original plaintext passwords by hashing guesses and and compares it with the target hash. If they match, John has found the original password.
+
+Since John works directly with password hashes, it does not need to interact with the original system. It can test a large number of password guesses without causing login attempts, lockouts, or rate limits. In an offline attack, cracking speed mainly depends on the available hardware and how much time you have.
 
 ---
 
@@ -54,60 +57,51 @@ sudo unshadow /etc/passwd /etc/shadow > ~/hashes.txt
 
 ---
 
-## 7. Run John
+## 3. Running John
 
-
----
-
-## 3. The yescrypt Problem
-
-I was testing John against a Linux password hash.
-
-The hash started with:
-
-```text
-$y$...
-```
-
-This means the password was using **yescrypt**.
-
-I checked whether my John build supported it:
-
-```bash
-john --list=formats | grep -i yescrypt
-```
-
-Nothing was returned.
-
-When I tried to use the hash anyway:
+At this point, the basic process is simple: run John and give it the text file containing the hashes:
 
 ```bash
 john hashes.txt
 ```
 
-I got:
+John should then start going through password dictionary and comparing them with the hash.
+
+This is basically what I expected from the password-cracking process covered in my **CompTIA A+** course. But in my case, it didn't work. **John** returned:
 
 ```text
 No password hashes loaded
 ```
+...even thought they were loaded into `hashes.txt` file. At this point I started digging deeper into what was actually happening.
 
-So I needed a newer John build with yescrypt support.
+---
+
+## 4. Hash Format Problem
+
+There are many common hash formats, for example:
+
+```text
+$1$...       → MD5
+$5$...       → SHA-256
+$6$...       → SHA-512
+$2b$...      → bcrypt
+$y$...       → yescrypt
+```
+
+My problem was the `$y$` hash format, **yescrypt**, which the old version of **John the Ripper (JtR)** could not read. The **JtR** version was **1.9.0 Jumbo**. The Kali repository was providing an older stable package, while newer **JtR** development had continued upstream. To get a newer version with the required support, you need to download the source from **[developer's GitHub](https://github.com/openwall/john)** and compile it yourself.
 
 ---
 
 
-
 ## 5. Build a New Version
 
-Instead of using the old APT package, I decided to build John from source.
-
-First, I installed the required packages:
+First, install the required packages:
 
 ```bash
 sudo apt install git build-essential libssl-dev zlib1g-dev
 ```
 
-Then downloaded the source:
+Then downloaded the source into home directory:
 
 ```bash
 cd ~
@@ -121,11 +115,10 @@ Configured the build:
 ./configure
 ```
 
-Then compiled it:
+Then we see that configure finished and to compiled it we have to run:
 
 ```bash
-make -s clean
-make -sj$(nproc)
+make -s clean && make -sj6
 ```
 
 After the build finished, the new John binary was located here:
@@ -140,8 +133,13 @@ I used this binary instead of the old `john` command.
 
 ## 6. Use RockYou
 
-Kali may have the RockYou wordlist compressed as:
+My Kali didn't have the RockYou wordlist. So I installed it:
 
+```text
+sudo apt update
+sudo apt install wordlists
+```
+After installation it can be found there:
 ```text
 /usr/share/wordlists/rockyou.txt.gz
 ```
@@ -152,7 +150,7 @@ I checked:
 ls -lah /usr/share/wordlists/
 ```
 
-If necessary, I extracted it:
+Extract it:
 
 ```bash
 sudo gzip -d /usr/share/wordlists/rockyou.txt.gz

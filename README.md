@@ -8,7 +8,7 @@ This guide explains how passwords are stored, what is **John the Ripper** and sh
 - [1. Install John](#1-install-john)
 - [2. Prepare the Hash](#2-prepare-the-hash)
 - [3. Running John](#3-running-john)
-- [4. Hash Format Problem](#3-hash-format-problem)
+- [4. Hash Format Problem](#4-hash-format-problem)
 - [5. Build a New Version](#5-build-a-new-version)
 - [6. Use RockYou Wordlist](#6-use-rockyou-wordlist)
 - [7. Run John Again](#7-run-john-again)

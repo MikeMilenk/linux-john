@@ -199,6 +199,10 @@ The `--wordlist` option means this is a **dictionary attack**. John goes through
 
 If the password is not in the wordlist, John will not find it with this method.
 
+In my case, it took about 14.5 hours to crack the passwords. Even though the passwords looked complex, they were still present in the wordlist. This shows why passwords should be randomly generated and unique rather than based on common words or patterns.
+
+![Cracked passwords](https://github.com/MikeMilenk/linux-john/blob/3f4da75d4d0986e930677ca5d844b57913f1d568/images/8%20-%20Cracked%20Passwords.png)
+
 ---
 
 ## 8. Useful Commands
